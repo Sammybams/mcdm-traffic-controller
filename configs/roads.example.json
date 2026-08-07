@@ -1,0 +1,50 @@
+{
+  "_comment": "Example only. Replace the polygons and homographies after calibrating the installed camera at all four motor positions.",
+  "roads": [
+    {
+      "road_id": "road_1",
+      "distance_unit": "normalized",
+      "visible_length": 0.8,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.2, 0.15], [0.8, 0.15]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.05, 0.95], [0.49, 0.95], [0.49, 0.15], [0.2, 0.15]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.51, 0.95], [0.95, 0.95], [0.8, 0.15], [0.51, 0.15]]}
+      }
+    },
+    {
+      "road_id": "road_2",
+      "distance_unit": "normalized",
+      "visible_length": 0.8,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.2, 0.15], [0.8, 0.15]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.05, 0.95], [0.49, 0.95], [0.49, 0.15], [0.2, 0.15]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.51, 0.95], [0.95, 0.95], [0.8, 0.15], [0.51, 0.15]]}
+      }
+    },
+    {
+      "road_id": "road_3",
+      "distance_unit": "normalized",
+      "visible_length": 0.8,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.2, 0.15], [0.8, 0.15]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.05, 0.95], [0.49, 0.95], [0.49, 0.15], [0.2, 0.15]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.51, 0.95], [0.95, 0.95], [0.8, 0.15], [0.51, 0.15]]}
+      }
+    },
+    {
+      "road_id": "road_4",
+      "distance_unit": "normalized",
+      "visible_length": 0.8,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.2, 0.15], [0.8, 0.15]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.05, 0.95], [0.49, 0.95], [0.49, 0.15], [0.2, 0.15]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.51, 0.95], [0.95, 0.95], [0.8, 0.15], [0.51, 0.15]]}
+      }
+    }
+  ]
+}
+
