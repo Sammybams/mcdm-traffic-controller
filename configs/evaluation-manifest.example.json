@@ -1,0 +1,13 @@
+{
+  "samples": [
+    {
+      "image_path": "data/images/test/session-05-road-1-001.jpg",
+      "road_id": "road_1",
+      "lanes": {
+        "left": {"count": 3, "nearest_distance": 0.18},
+        "right": {"count": 1, "nearest_distance": 0.52}
+      }
+    }
+  ]
+}
+
