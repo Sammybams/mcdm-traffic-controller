@@ -53,5 +53,14 @@ traffic-vision \
 Every road result contains left/right count, density, nearest distance, and
 proximity, plus aggregate road measurements and per-car coordinates.
 
+Generate a perspective matrix from four measured pixel-to-board point pairs:
+
+```bash
+python3 scripts/compute_homography.py configs/calibration-points.example.json
+```
+
+Copy the resulting matrix into the matching road entry. Calibration must be
+performed independently at all four motor positions.
+
 Do not commit datasets or trained weights to normal Git history. See the
 documentation added with the training pipeline for the expected asset flow.
