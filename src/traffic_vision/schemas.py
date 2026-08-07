@@ -95,3 +95,15 @@ class RoadResult:
 
         return asdict(self)
 
+
+@dataclass(frozen=True, slots=True)
+class JunctionResult:
+    roads: dict[str, RoadResult]
+
+    def __post_init__(self) -> None:
+        if len(self.roads) != 4:
+            raise ValueError("junction result must contain exactly four roads")
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
