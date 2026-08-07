@@ -16,6 +16,15 @@ The core package is deliberately independent of a specific object-detection
 model. A detector supplies bounding boxes; deterministic geometry assigns each
 box to a lane and calculates the measurements.
 
+## Documentation
+
+- [Runtime and model infrastructure](docs/architecture.md)
+- [Training, data, evaluation, and deployment flow](docs/training-data-flow.md)
+
+The example road geometry is intentionally uncalibrated. Copy
+`configs/roads.example.json` and replace its lane polygons, junction lines,
+capacities, and homographies with measurements from the final camera rig.
+
 ## Development
 
 ```bash
@@ -29,6 +38,20 @@ Model training and inference dependencies are optional:
 python3 -m pip install -e '.[vision]'
 ```
 
+Process four separately captured road images with accepted model weights:
+
+```bash
+traffic-vision \
+  --config configs/roads.calibrated.json \
+  --model artifacts/toy-vehicle-v1.pt \
+  --image road_1=captures/road-1.jpg \
+  --image road_2=captures/road-2.jpg \
+  --image road_3=captures/road-3.jpg \
+  --image road_4=captures/road-4.jpg
+```
+
+Every road result contains left/right count, density, nearest distance, and
+proximity, plus aggregate road measurements and per-car coordinates.
+
 Do not commit datasets or trained weights to normal Git history. See the
 documentation added with the training pipeline for the expected asset flow.
-
