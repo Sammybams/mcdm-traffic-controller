@@ -9,7 +9,11 @@ from traffic_vision.geometry import (
     point_to_segment_distance,
 )
 from traffic_vision.lane_assignment import assign_lane
-from traffic_vision.metrics import calculate_lane_metrics
+from traffic_vision.metrics import (
+    calculate_lane_metrics,
+    normalized_density,
+    normalized_proximity,
+)
 from traffic_vision.schemas import CarMeasurement, ImageDetections, RoadResult
 
 
@@ -62,12 +66,21 @@ def process_road(
         for lane in config.lanes
     }
     total_count = sum(metric.count for metric in metrics.values())
+    road_nearest_distance = min(
+        (measurement.distance_to_junction for measurement in measurements),
+        default=None,
+    )
     return RoadResult(
         road_id=config.road_id,
         distance_unit=config.distance_unit,
         lanes=metrics,
         total_count=total_count,
+        density=normalized_density(
+            total_count,
+            sum(lane.maximum_capacity for lane in config.lanes),
+        ),
+        nearest_distance=road_nearest_distance,
+        proximity=normalized_proximity(road_nearest_distance, config.visible_length),
         cars=tuple(measurements),
         unassigned_count=unassigned_count,
     )
-

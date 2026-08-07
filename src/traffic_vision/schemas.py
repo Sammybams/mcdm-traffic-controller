@@ -87,6 +87,9 @@ class RoadResult:
     distance_unit: str
     lanes: dict[str, LaneMetrics]
     total_count: int
+    density: float
+    nearest_distance: float | None
+    proximity: float
     cars: tuple[CarMeasurement, ...]
     unassigned_count: int
 
@@ -106,4 +109,3 @@ class JunctionResult:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-

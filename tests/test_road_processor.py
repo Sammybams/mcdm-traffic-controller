@@ -42,6 +42,9 @@ def test_processes_counts_density_and_proximity_for_both_lanes() -> None:
     result = process_road(image, ROAD_CONFIG)
 
     assert result.total_count == 2
+    assert result.density == pytest.approx(0.25)
+    assert result.nearest_distance == pytest.approx(0.2)
+    assert result.proximity == pytest.approx(0.8)
     assert result.lanes["left"].count == 1
     assert result.lanes["left"].density == pytest.approx(0.25)
     assert result.lanes["left"].nearest_distance == pytest.approx(0.2)
@@ -62,4 +65,3 @@ def test_filters_low_confidence_and_counts_unassigned_detections() -> None:
     assert result.total_count == 0
     assert result.unassigned_count == 1
     assert result.cars == ()
-
