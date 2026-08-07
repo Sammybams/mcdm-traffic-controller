@@ -1,0 +1,13 @@
+{
+  "base_model": "yolo11n.pt",
+  "dataset_yaml": "configs/dataset.example.yaml",
+  "epochs": 100,
+  "image_size": 960,
+  "batch_size": 16,
+  "seed": 42,
+  "workers": 4,
+  "device": "auto",
+  "project": "runs/train",
+  "run_name": "toy-vehicle-baseline"
+}
+
