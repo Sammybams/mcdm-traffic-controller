@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from traffic_vision.config import Matrix3x3
+from traffic_vision.geometry import normalize_image_point
 from traffic_vision.schemas import Point
 
 
@@ -55,3 +56,15 @@ def compute_homography(
         (values[6], values[7], 1.0),
     )
 
+
+def compute_homography_from_pixels(
+    image_points: tuple[Point, Point, Point, Point],
+    road_points: tuple[Point, Point, Point, Point],
+    image_width: int,
+    image_height: int,
+) -> Matrix3x3:
+    normalized_points = tuple(
+        normalize_image_point(point, image_width, image_height)
+        for point in image_points
+    )
+    return compute_homography(normalized_points, road_points)  # type: ignore[arg-type]

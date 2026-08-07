@@ -1,0 +1,7 @@
+{
+  "_comment": "Example only. Record these values separately for every motor position.",
+  "image_size": [1280, 720],
+  "image_points": [[250, 650], [1030, 650], [800, 120], [480, 120]],
+  "road_points": [[0, 60], [40, 60], [40, 0], [0, 0]]
+}
+
