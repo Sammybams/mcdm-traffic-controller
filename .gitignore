@@ -12,6 +12,7 @@ build/
 data/images/
 data/labels/
 data/training/
+data/classification/
 runs/
 artifacts/
 *.onnx
