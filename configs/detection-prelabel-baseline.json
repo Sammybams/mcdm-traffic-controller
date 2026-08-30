@@ -1,0 +1,19 @@
+{
+  "base_model": "yolo11n.pt",
+  "dataset_yaml": "data/detection-prelabel/dataset.yaml",
+  "epochs": 50,
+  "image_size": 640,
+  "batch_size": 8,
+  "seed": 42,
+  "workers": 0,
+  "device": "mps",
+  "project": "runs/detect",
+  "run_name": "prelabel-baseline",
+  "extra_arguments": {
+    "scale": 0.1,
+    "translate": 0.05,
+    "mosaic": 0.5,
+    "close_mosaic": 10,
+    "patience": 20
+  }
+}
