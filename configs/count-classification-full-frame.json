@@ -1,0 +1,18 @@
+{
+  "base_model": "yolo11n-cls.pt",
+  "dataset_yaml": "data/classification",
+  "epochs": 50,
+  "image_size": 320,
+  "batch_size": 16,
+  "seed": 42,
+  "workers": 0,
+  "device": "mps",
+  "project": "runs/classify",
+  "run_name": "count-full-frame",
+  "extra_arguments": {
+    "scale": 0.0,
+    "erasing": 0.0,
+    "auto_augment": null,
+    "crop_fraction": 1.0
+  }
+}
