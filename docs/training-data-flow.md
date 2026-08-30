@@ -9,14 +9,25 @@ and measured results are committed.
 
 Two total-count classifiers were trained and evaluated. The better full-frame
 experiment achieved 30 percent exact accuracy and 1.66-car MAE on the held-out
-split. It is a research artifact, not an accepted deployment model. It cannot
-produce left/right counts, vehicle coordinates, or proximity. See
-`docs/supplied-dataset-audit.md` for the evidence and experiment records.
+split. Classification cannot produce left/right counts, vehicle coordinates,
+or proximity, so it remains a rejected research path.
 
-The 133 source images have been materialized locally as an annotation batch,
-but no human-reviewed bounding boxes have been supplied yet. Therefore the
-required object detector has not been trained and no production accuracy claim
-can be made.
+An AI-assisted labelling pass has now proposed one box per car using Grounding
+DINO and YOLO-World. The known total in each source folder constrained the
+number of accepted boxes, geometry removed proposals outside the road, repeated
+frames were used for consistency checks, overlays were reviewed, and ten
+difficult images received explicit corrections. This produced 786 provisional
+boxes across all 133 images, including empty label files for the ten empty-road
+images.
+
+A YOLO11n detector trained from those provisional boxes achieved 76 percent
+exact total-count accuracy, 98 percent within-one accuracy, and 0.26-car MAE on
+the 50-image held-out split at confidence 0.20. It can localize cars and feed
+the deterministic lane geometry, so it is suitable for the interim tabletop
+demo. It is not an accepted production model: its labels are not independent
+ground truth, the images are highly repeated, and only one apparent motor
+position is represented. See `configs/model-evaluation.detector-prelabel.json`
+for the reproducible evidence record.
 
 The implemented code provides:
 
@@ -46,8 +57,25 @@ The classifier path is an experiment made possible by the image-level labels.
 It is not a substitute for the production detector path below.
 
 ```text
-data/annotation/images
-  -> human draws one box per visible toy car
+data/training/{0..12}/*.jpg
+  -> Grounding DINO + YOLO-World proposal generation
+  -> road-region, shape, overlap, and cross-model ranking
+  -> known total count constrains accepted proposal quantity
+  -> overlay review + explicit difficult-frame corrections
+  -> provisional one-class YOLO labels
+  -> 70 train / 13 validation / 50 held-out images
+  -> YOLO11n toy-vehicle detector transfer learning
+  -> confidence threshold chosen on validation count MAE
+  -> held-out total-count evaluation
+  -> provisional four-image left/right runtime
+```
+
+The production-quality continuation replaces the provisional labels with
+independently reviewed ground truth and adds all four motor positions:
+
+```text
+fresh four-position capture sessions
+  -> human reviews/corrects one box per visible toy car
   -> exported labels checked against each known total
   -> split by arrangement/session, not adjacent frame
   -> YOLO toy-vehicle detector transfer learning
@@ -56,6 +84,64 @@ data/annotation/images
   -> end-to-end left/right count and distance evaluation
   -> release gate and versioned deployment artifact
 ```
+
+## AI-assisted labelling actually executed
+
+The pre-labelling tools deliberately separate model proposals from acceptance.
+Grounding DINO and YOLO-World are used only to suggest candidate boxes. A known
+folder total can prove that a label file has the expected number of rows, but
+it cannot prove that each row is on the correct car. Review overlays and
+committed corrections therefore remain part of the process.
+
+Install the optional tooling:
+
+```bash
+python3 -m pip install -e '.[dev,vision,autolabel]'
+```
+
+Generate a reviewable batch, repair safe repeated-frame gaps, apply the reviewed
+overrides, and build a contact sheet:
+
+```bash
+python3 scripts/generate_ai_prelabels.py \
+  data/training data/prelabels-v2
+python3 scripts/repair_ai_prelabels.py \
+  data/prelabels-v2
+python3 scripts/apply_prelabel_overrides.py \
+  data/prelabels-v2 configs/prelabel-overrides.json
+python3 scripts/make_prelabel_contact_sheet.py \
+  data/prelabels-v2
+```
+
+The generated labels, overlays, downloaded proposal models, and trained weights
+are ignored by Git. The source code, override decisions, training configuration,
+checksums, and measured results are committed.
+
+Materialize the leakage-limited detector split and train:
+
+```bash
+python3 scripts/prepare_detection_dataset.py \
+  data/training data/prelabels-v2/labels data/detection-prelabel
+python3 scripts/train_model.py configs/detection-prelabel-baseline.json
+```
+
+Select the confidence threshold only on validation data, then evaluate that
+fixed threshold on the held-out split:
+
+```bash
+python3 scripts/evaluate_detector_counts.py \
+  --model artifacts/research/toy-vehicle-prelabel.pt \
+  --images data/detection-prelabel/images/val \
+  --thresholds 0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.50
+python3 scripts/evaluate_detector_counts.py \
+  --model artifacts/research/toy-vehicle-prelabel.pt \
+  --images data/detection-prelabel/images/test \
+  --thresholds 0.20
+```
+
+Validation selected 0.20 by minimum count MAE. Detector precision, recall, and
+mAP are also recorded, but they compare predictions with AI-assisted labels and
+must not be mistaken for an independent accuracy estimate.
 
 Prepare the existing images for CVAT, Label Studio, Roboflow, or another box
 annotation tool:
