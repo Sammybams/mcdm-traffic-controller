@@ -1,0 +1,68 @@
+{
+  "model_name": "toy-vehicle-prelabel",
+  "model_task": "single_class_toy_vehicle_detection",
+  "status": "provisional_research",
+  "evaluated_at": "2026-08-31",
+  "base_model": "yolo11n.pt",
+  "artifact": {
+    "local_path": "artifacts/research/toy-vehicle-prelabel.pt",
+    "sha256": "682b580b0bdb8afd9c42b3202a238bd31942ffa7c33f37ebb81ce2a268828544"
+  },
+  "dataset": {
+    "source_path": "data/training",
+    "source_images": 133,
+    "source_fingerprint_sha256": "592b24daeb7ca372372067d186fb390ab5d23c94cda083f050153e0caef5fc66",
+    "split_manifest_sha256": "6450c7b9f3ac853b2d032cb4226159464f71dcf68d15e842eaf9836f32e44189",
+    "prelabel_box_count": 786,
+    "reviewed_override_images": 10,
+    "train_images": 70,
+    "validation_images": 13,
+    "test_images": 50,
+    "label_tree_sha256": "dd17d779c8e85b267c5635bc71bdbe3619708609733aad1cbd6711483387064c"
+  },
+  "prelabelling": {
+    "proposal_models": [
+      "IDEA-Research/grounding-dino-tiny",
+      "yolov8s-worldv2.pt"
+    ],
+    "known_total_count_used_as_selection_constraint": true,
+    "override_config": {
+      "path": "configs/prelabel-overrides.json",
+      "sha256": "af9e9eef24b054c4fbc81e70bc37dd94a61dae89641a975e2093f58ff9647c7a"
+    },
+    "warning": "The labels are AI-assisted provisional boxes, not independently annotated ground truth. Known totals verify box quantity but not box placement."
+  },
+  "training_config": {
+    "path": "configs/detection-prelabel-baseline.json",
+    "sha256": "9b76745ca3712fe695d6417bb057ec74b24444a523a8ca2fc256deb0d135c792",
+    "epochs": 50,
+    "image_size": 640,
+    "actual_training_device": "cpu"
+  },
+  "detector_validation": {
+    "precision": 0.982,
+    "recall": 0.962,
+    "map_50": 0.992,
+    "map_50_95": 0.881,
+    "warning": "Detection metrics are measured against the AI-assisted labels."
+  },
+  "count_validation": {
+    "selected_confidence_threshold": 0.2,
+    "selection_rule": "lowest count MAE, then lowest empty false-positive rate, then highest exact accuracy",
+    "exact_accuracy": 0.8461538462,
+    "within_one_accuracy": 0.9230769231,
+    "mean_absolute_error": 0.2307692308,
+    "empty_false_positive_rate": 0.0
+  },
+  "held_out_total_count_test": {
+    "exact_accuracy": 0.76,
+    "within_one_accuracy": 0.98,
+    "mean_absolute_error": 0.26,
+    "empty_false_positive_rate": 0.0
+  },
+  "lane_evaluation": {
+    "status": "not_independently_measured",
+    "reason": "The supplied data has no human left/right labels and only one apparent camera position."
+  },
+  "decision": "Usable for an interim tabletop demonstration and for generating review candidates. Do not claim production readiness or connect it to an unattended traffic controller until fresh four-position data and independently reviewed lane/count ground truth pass the acceptance gates."
+}
