@@ -122,19 +122,49 @@ used to tune its filtering and its boxes were not manually verified.
 Pretrained boxes may reduce annotation work, but must not be treated as ground
 truth automatically.
 
+## AI-assisted provisional detector result
+
+The count labels were subsequently used as constraints for an ensemble
+pre-labelling workflow. Grounding DINO and YOLO-World proposed boxes; road
+geometry, non-maximum suppression, cross-model agreement, and the known total
+ranked them. Review overlays exposed difficult dark-car arrangements, and
+explicit normalized corrections were committed for ten affected images.
+
+The completed provisional set contains 786 boxes across 133 images. Every label
+file has the known number of boxes, including ten empty files. This is useful
+for bootstrapping, but matching the expected row count does not prove that every
+box is correctly placed.
+
+A YOLO11n detector was fine-tuned for 50 epochs at 640-pixel input. Confidence
+0.20 was selected on the 13-image validation split by minimum count MAE. On the
+50-image held-out split it achieved:
+
+| Metric | Result |
+|---|---:|
+| Exact total-count accuracy | 76% |
+| Within one car | 98% |
+| Mean absolute error | 0.26 cars |
+| Empty-image false-positive rate | 0% |
+
+The detector can return car boxes, so deterministic geometry can now calculate
+provisional left/right counts and proximity. These remain same-session results
+against data derived from AI-assisted labels; left/right accuracy has not been
+independently measured. The model is appropriate for a supervised tabletop
+demo, not an unattended or safety-critical controller.
+
 ## Readiness decision
 
 | Capability | Supported by supplied data? | Reason |
 |---|---|---|
 | Experimental total-count classifier | Partially | Total labels exist, but the dataset is tiny and highly repeated |
 | Honest unseen-scene accuracy estimate | No | One short capture session and few independent arrangements |
-| Left/right lane count detector | No | No boxes or per-lane labels |
-| Vehicle coordinates | No | No object annotations |
-| Junction proximity | No | No object coordinates or calibrated road plane |
+| Provisional left/right lane output | Partially | AI-assisted boxes plus estimated one-view geometry now work, but no independent lane truth exists |
+| Vehicle coordinates | Partially | The provisional detector returns box centres; accuracy is not independently certified |
+| Junction proximity | Partially | Normalized image-space proximity works; physical calibration is still missing |
 | Four-road deployment validation | No | Only one apparent road/camera position is represented |
 
-The data is useful as an initial engineering sample and annotation source. It is
-not sufficient to declare the requested system deployment-ready.
+The data is sufficient for an initial detector and supervised engineering demo.
+It is not sufficient to declare the requested system deployment-ready.
 
 The provisional classification experiment is configured in
 `configs/count-classification.json`. It uses the generated
@@ -174,7 +204,8 @@ controller.
 
 Before an accepted detector is trained, supply or create:
 
-1. Bounding boxes around every visible car in every usable image.
+1. Independent review/correction of every provisional box, plus fresh boxes for
+   new images.
 2. A reviewed rule for partially occluded vehicles.
 3. Empty and populated captures from all four motor positions.
 4. One fixed runtime resolution, preferably the current 800×600 or higher.
@@ -183,7 +214,7 @@ Before an accepted detector is trained, supply or create:
 7. Four calibration images with known road-plane reference points.
 8. A lane-capacity value and visible physical lane length for every road view.
 
-The repository includes validation, training, evaluation, and calibration tools
-for this completion package. The next code milestones add a safe provisional
-count-classification experiment while keeping it separate from the detection
-pipeline.
+The repository includes AI-assisted labelling, validation, training,
+evaluation, runtime, and calibration tools for this completion package. The
+remaining work is primarily new representative data, independent review, and
+per-position calibration rather than another whole-image classifier.
