@@ -20,12 +20,29 @@ class TrainingConfig:
     project: str
     run_name: str
     device: str = "auto"
+    extra_arguments: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if not self.base_model or not self.dataset_yaml:
             raise ValueError("base model and dataset YAML are required")
         if min(self.epochs, self.image_size, self.batch_size, self.workers + 1) <= 0:
             raise ValueError("training numeric settings must be positive")
+        reserved = {
+            "data",
+            "epochs",
+            "imgsz",
+            "batch",
+            "seed",
+            "workers",
+            "project",
+            "name",
+            "device",
+        }
+        overlap = reserved.intersection(self.extra_arguments or {})
+        if overlap:
+            raise ValueError(
+                f"extra training arguments cannot override managed keys: {sorted(overlap)}"
+            )
 
 
 def load_training_config(path: str | Path) -> TrainingConfig:
@@ -42,6 +59,7 @@ def load_training_config(path: str | Path) -> TrainingConfig:
         project=str(raw["project"]),
         run_name=str(raw["run_name"]),
         device=str(raw.get("device", "auto")),
+        extra_arguments=dict(raw.get("extra_arguments", {})),
     )
 
 
@@ -60,6 +78,7 @@ def training_arguments(config: TrainingConfig) -> dict[str, Any]:
     }
     if config.device != "auto":
         arguments["device"] = config.device
+    arguments.update(config.extra_arguments or {})
     return arguments
 
 

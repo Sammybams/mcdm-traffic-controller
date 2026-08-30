@@ -56,3 +56,31 @@ def test_training_resolves_project_path_to_current_repository() -> None:
     assert training_arguments(config)["project"].endswith(
         "/mcdm-traffic-controller/runs/train"
     )
+
+
+def test_training_passes_through_non_managed_experiment_arguments(tmp_path) -> None:
+    path = tmp_path / "training.json"
+    raw = json.loads(open("configs/count-classification.json", encoding="utf-8").read())
+    raw["extra_arguments"] = {"scale": 0.0, "erasing": 0.0}
+    path.write_text(json.dumps(raw), encoding="utf-8")
+
+    arguments = training_arguments(load_training_config(path))
+
+    assert arguments["scale"] == 0.0
+    assert arguments["erasing"] == 0.0
+
+
+def test_training_rejects_extra_argument_that_overrides_managed_key() -> None:
+    with pytest.raises(ValueError, match="managed keys"):
+        TrainingConfig(
+            base_model="model.pt",
+            dataset_yaml="dataset.yaml",
+            epochs=1,
+            image_size=640,
+            batch_size=4,
+            seed=1,
+            workers=1,
+            project="runs",
+            run_name="bad",
+            extra_arguments={"epochs": 99},
+        )
