@@ -45,6 +45,24 @@ def load_training_config(path: str | Path) -> TrainingConfig:
     )
 
 
+def training_arguments(config: TrainingConfig) -> dict[str, Any]:
+    project_directory = Path(config.project).resolve()
+    arguments: dict[str, Any] = {
+        "data": config.dataset_yaml,
+        "epochs": config.epochs,
+        "imgsz": config.image_size,
+        "batch": config.batch_size,
+        "seed": config.seed,
+        "workers": config.workers,
+        "project": str(project_directory),
+        "name": config.run_name,
+        "save_period": 10,
+    }
+    if config.device != "auto":
+        arguments["device"] = config.device
+    return arguments
+
+
 def run_training(config: TrainingConfig) -> Any:
     try:
         from ultralytics import YOLO
@@ -54,18 +72,4 @@ def run_training(config: TrainingConfig) -> Any:
         ) from error
 
     model = YOLO(config.base_model)
-    arguments: dict[str, Any] = {
-        "data": config.dataset_yaml,
-        "epochs": config.epochs,
-        "imgsz": config.image_size,
-        "batch": config.batch_size,
-        "seed": config.seed,
-        "workers": config.workers,
-        "project": config.project,
-        "name": config.run_name,
-        "save_period": 10,
-    }
-    if config.device != "auto":
-        arguments["device"] = config.device
-    return model.train(**arguments)
-
+    return model.train(**training_arguments(config))

@@ -2,7 +2,11 @@ import json
 
 import pytest
 
-from traffic_vision.training import TrainingConfig, load_training_config
+from traffic_vision.training import (
+    TrainingConfig,
+    load_training_config,
+    training_arguments,
+)
 
 
 def test_loads_versioned_training_configuration(tmp_path) -> None:
@@ -45,3 +49,10 @@ def test_training_config_rejects_zero_epochs() -> None:
             run_name="bad",
         )
 
+
+def test_training_resolves_project_path_to_current_repository() -> None:
+    config = load_training_config("configs/training.example.json")
+
+    assert training_arguments(config)["project"].endswith(
+        "/mcdm-traffic-controller/runs/train"
+    )
