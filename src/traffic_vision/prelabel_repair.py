@@ -33,7 +33,13 @@ def _label_name(label: int, source: str) -> str:
     return f"count-{label:02d}__{Path(source).stem}.txt"
 
 
-def _render_propagated_overlay(image_path: Path, label_path: Path, output: Path) -> None:
+def render_yolo_overlay(
+    image_path: Path,
+    label_path: Path,
+    output: Path,
+    caption: str,
+    colour: str,
+) -> None:
     with Image.open(image_path) as opened:
         image = opened.convert("RGB")
     draw = ImageDraw.Draw(image)
@@ -50,10 +56,10 @@ def _render_propagated_overlay(image_path: Path, label_path: Path, output: Path)
             x + box_width / 2,
             y + box_height / 2,
         )
-        draw.rectangle(box, outline="#00ccff", width=3)
-        draw.text((box[0] + 2, max(0, box[1] - 12)), f"{index}:propagated", fill="#00ccff")
+        draw.rectangle(box, outline=colour, width=3)
+        draw.text((box[0] + 2, max(0, box[1] - 12)), f"{index}:{caption}", fill=colour)
     draw.rectangle((0, 0, image.width, 22), fill="#000000")
-    draw.text((4, 4), f"expected={len(lines)} TEMPORAL PROPAGATION - REVIEW", fill="#ffffff")
+    draw.text((4, 4), f"expected={len(lines)} {caption.upper()} - REVIEW", fill="#ffffff")
     image.save(output, quality=90)
 
 
@@ -100,10 +106,12 @@ def repair_incomplete_prelabels(
         if box_count != group_key[0]:
             raise RuntimeError(f"propagated label has wrong count: {source_label}")
         overlay_name = f"count-{group_key[0]:02d}__{Path(target_source).name}"
-        _render_propagated_overlay(
+        render_yolo_overlay(
             source_root / target_source,
             target_label,
             prelabel_root / "overlays" / overlay_name,
+            "temporal propagation",
+            "#00ccff",
         )
         repairs.append(
             PrelabelRepair(
