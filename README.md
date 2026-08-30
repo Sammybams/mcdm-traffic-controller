@@ -78,7 +78,35 @@ performed independently at all four motor positions.
 Do not commit datasets or trained weights to normal Git history. See the
 documentation added with the training pipeline for the expected asset flow.
 
-The supplied count-only data also produced a research model at
-`artifacts/research/count-full-frame.pt`. It can demonstrate four-image total
-classification with `scripts/classify_total_counts.py`, but it is explicitly
-not the production lane-count model and must not drive the controller.
+## Provisional model built from the supplied data
+
+AI-assisted pre-labelling made it possible to train an interim object detector
+from the 133 count-labelled images. Its local weight file is
+`artifacts/research/toy-vehicle-prelabel.pt`; weights and datasets remain
+ignored by Git. On the 50-image held-out split it produced the exact total count
+in 76 percent of images, was within one car in 98 percent, and had a 0.26-car
+mean absolute error. These figures come from one short, highly repeated camera
+session and are not evidence of four-road production accuracy.
+
+Run the detector on four separate captures with the provisional supplied-view
+geometry:
+
+```bash
+traffic-vision \
+  --config configs/roads.supplied-view-provisional.json \
+  --model artifacts/research/toy-vehicle-prelabel.pt \
+  --confidence 0.20 \
+  --image road_1=captures/road-1.jpg \
+  --image road_2=captures/road-2.jpg \
+  --image road_3=captures/road-3.jpg \
+  --image road_4=captures/road-4.jpg
+```
+
+The output contains left/right counts, normalized density and proximity, and
+each detected car's coordinates. The lane polygons are estimates for the one
+supplied camera view; calibrate all four motor positions before deployment.
+
+The older whole-image classifier at
+`artifacts/research/count-full-frame.pt` achieved only 30 percent exact total
+count accuracy. It cannot localize cars or divide them into lanes and should
+not be used for the controller.
