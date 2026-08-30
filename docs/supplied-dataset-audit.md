@@ -162,6 +162,14 @@ metrics are not lane metrics and cannot be used to claim that the requested
 left/right system works. The result supports moving to object annotations and
 geometry instead of attempting to infer locations from total labels.
 
+A second controlled experiment increased the input from 224 to 320 pixels and
+disabled random crop/erase augmentation so that training always sees the full
+road. It improved exact total-count accuracy to 30 percent and MAE to 1.66 cars,
+but remains a research-only artifact. Its record is
+`configs/model-evaluation.count-full-frame.json`; its local ignored artifact is
+`artifacts/research/count-full-frame.pt`. It must not be connected to the MCDM
+controller.
+
 ## Minimum data completion package
 
 Before an accepted detector is trained, supply or create:

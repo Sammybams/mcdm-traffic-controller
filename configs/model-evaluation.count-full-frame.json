@@ -1,0 +1,34 @@
+{
+  "model_name": "count-full-frame",
+  "model_task": "whole_image_total_vehicle_count_classification",
+  "status": "research_only",
+  "evaluated_at": "2026-08-30",
+  "base_model": "yolo11n-cls.pt",
+  "artifact": {
+    "local_path": "artifacts/research/count-full-frame.pt",
+    "sha256": "a1d49b46f70b5a7c74c20f2f2cea8360060d67582df7aa24719f500651be2ac1"
+  },
+  "dataset": {
+    "source_path": "data/training",
+    "source_fingerprint_sha256": "592b24daeb7ca372372067d186fb390ab5d23c94cda083f050153e0caef5fc66",
+    "split_manifest_sha256": "6450c7b9f3ac853b2d032cb4226159464f71dcf68d15e842eaf9836f32e44189",
+    "test_images": 50
+  },
+  "training_config": {
+    "path": "configs/count-classification-full-frame.json",
+    "sha256": "9d4615afe8c3ff57fb4dde83bcc15839056b739783bd65ef1d38d0f9154b7657"
+  },
+  "validation": {
+    "top1_accuracy": 0.4615384615,
+    "top5_accuracy": 0.7692307692,
+    "images": 13
+  },
+  "test": {
+    "exact_accuracy": 0.3,
+    "within_one_accuracy": 0.56,
+    "mean_absolute_error": 1.66,
+    "root_mean_squared_error": 2.2671568098,
+    "mean_signed_error": 1.18
+  },
+  "decision": "Research demonstration only. Do not connect to the MCDM controller: it cannot return per-lane counts or coordinates and does not meet accuracy gates."
+}
