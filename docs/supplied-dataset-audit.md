@@ -142,6 +142,26 @@ The provisional classification experiment is configured in
 `runs/classify` directory. The configuration is committed for reproducibility;
 the generated split and model weights are not committed to normal Git.
 
+## Provisional classifier result
+
+The configured YOLO11n classification baseline was trained for 50 epochs. It
+reached 30.8 percent top-1 accuracy on the 13-image validation split. On the
+50-image held-out split, the count-specific results were:
+
+| Metric | Result |
+|---|---:|
+| Exact total-count accuracy | 16% |
+| Within one car | 50% |
+| Mean absolute error | 1.96 cars |
+| Root mean squared error | 2.67 cars |
+| Mean signed error | +0.72 cars |
+
+This baseline is rejected. Its checksum, configuration, data fingerprint, and
+decision are recorded in `configs/model-evaluation.count-baseline.json`. These
+metrics are not lane metrics and cannot be used to claim that the requested
+left/right system works. The result supports moving to object annotations and
+geometry instead of attempting to infer locations from total labels.
+
 ## Minimum data completion package
 
 Before an accepted detector is trained, supply or create:

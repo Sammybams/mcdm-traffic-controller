@@ -1,0 +1,34 @@
+{
+  "model_name": "count-baseline",
+  "model_task": "whole_image_total_vehicle_count_classification",
+  "status": "rejected",
+  "evaluated_at": "2026-08-30",
+  "base_model": "yolo11n-cls.pt",
+  "artifact": {
+    "local_path": "runs/classify/count-baseline/weights/best.pt",
+    "sha256": "c7b9f04edc2c5f4fa116a3dc6d236bc215e48a1b2c2eb2732ab4910fd9371b10"
+  },
+  "dataset": {
+    "source_path": "data/training",
+    "source_fingerprint_sha256": "592b24daeb7ca372372067d186fb390ab5d23c94cda083f050153e0caef5fc66",
+    "split_manifest_sha256": "6450c7b9f3ac853b2d032cb4226159464f71dcf68d15e842eaf9836f32e44189",
+    "test_images": 50
+  },
+  "training_config": {
+    "path": "configs/count-classification.json",
+    "sha256": "2203deeeae7d17a1fa45c58cbbe366fad57e55ffc19afa7aca0908e62919de3b"
+  },
+  "validation": {
+    "top1_accuracy": 0.3076923077,
+    "top5_accuracy": 0.7692307692,
+    "images": 13
+  },
+  "test": {
+    "exact_accuracy": 0.16,
+    "within_one_accuracy": 0.5,
+    "mean_absolute_error": 1.96,
+    "root_mean_squared_error": 2.6683328128,
+    "mean_signed_error": 0.72
+  },
+  "decision": "Do not deploy. This model cannot return per-lane counts or coordinates and its held-out total-count error is unacceptable."
+}
