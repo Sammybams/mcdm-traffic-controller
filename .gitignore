@@ -15,6 +15,7 @@ data/training/
 data/classification/
 data/annotation/
 data/prelabels/
+data/prelabels-v2/
 runs/
 artifacts/
 *.onnx

@@ -43,6 +43,17 @@ def test_removes_implausible_geometry_and_reports_incomplete_selection() -> None
     assert len(result.selected) == 1
 
 
+def test_removes_proposals_outside_observed_road_capture_region() -> None:
+    proposals = [
+        _proposal((10, 1, 20, 7), 0.99, "dino"),
+        _proposal((10, 10, 20, 30), 0.8, "dino"),
+    ]
+
+    result = select_count_constrained_proposals(proposals, 1, 100, 100)
+
+    assert result.selected[0].proposal.bounding_box == BoundingBox(10, 10, 20, 30)
+
+
 def test_known_empty_image_never_accepts_false_proposals() -> None:
     result = select_count_constrained_proposals(
         [_proposal((10, 10, 20, 30), 0.9, "dino")], 0, 100, 100

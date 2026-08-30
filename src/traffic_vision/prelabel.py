@@ -60,11 +60,15 @@ def has_vehicle_like_geometry(
     height = (box.y_max - box.y_min) / image_height
     area = width * height
     aspect = width / height
+    center_x = (box.x_min + box.x_max) / (2 * image_width)
+    center_y = (box.y_min + box.y_max) / (2 * image_height)
     return (
         0.025 <= width <= 0.18
         and 0.04 <= height <= 0.30
         and 0.32 <= aspect <= 1.60
         and 0.0015 <= area <= 0.035
+        and 0.06 <= center_x <= 0.82
+        and 0.08 <= center_y <= 0.68
     )
 
 
