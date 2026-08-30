@@ -11,6 +11,7 @@ build/
 # Local datasets, generated predictions, and model weights are not source code.
 data/images/
 data/labels/
+data/training/
 runs/
 artifacts/
 *.onnx
@@ -19,4 +20,3 @@ artifacts/
 
 .DS_Store
 .env
-
