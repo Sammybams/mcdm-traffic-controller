@@ -136,6 +136,12 @@ truth automatically.
 The data is useful as an initial engineering sample and annotation source. It is
 not sufficient to declare the requested system deployment-ready.
 
+The provisional classification experiment is configured in
+`configs/count-classification.json`. It uses the generated
+`data/classification` split and writes all artifacts below this repository's
+`runs/classify` directory. The configuration is committed for reproducibility;
+the generated split and model weights are not committed to normal Git.
+
 ## Minimum data completion package
 
 Before an accepted detector is trained, supply or create:
@@ -153,4 +159,3 @@ The repository includes validation, training, evaluation, and calibration tools
 for this completion package. The next code milestones add a safe provisional
 count-classification experiment while keeping it separate from the detection
 pipeline.
-

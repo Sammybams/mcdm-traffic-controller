@@ -1,0 +1,13 @@
+{
+  "base_model": "yolo11n-cls.pt",
+  "dataset_yaml": "data/classification",
+  "epochs": 50,
+  "image_size": 224,
+  "batch_size": 16,
+  "seed": 42,
+  "workers": 0,
+  "device": "mps",
+  "project": "runs/classify",
+  "run_name": "count-baseline"
+}
+
