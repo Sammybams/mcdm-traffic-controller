@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "batch_id": "cycle-20260830T120000+0100",
+  "captures": [
+    {
+      "road_id": "road_1",
+      "image_path": "../captures/road-1.jpg",
+      "captured_at": "2026-08-30T12:00:00+01:00",
+      "motor_position": 0
+    },
+    {
+      "road_id": "road_2",
+      "image_path": "../captures/road-2.jpg",
+      "captured_at": "2026-08-30T12:00:03+01:00",
+      "motor_position": 1
+    },
+    {
+      "road_id": "road_3",
+      "image_path": "../captures/road-3.jpg",
+      "captured_at": "2026-08-30T12:00:06+01:00",
+      "motor_position": 2
+    },
+    {
+      "road_id": "road_4",
+      "image_path": "../captures/road-4.jpg",
+      "captured_at": "2026-08-30T12:00:09+01:00",
+      "motor_position": 3
+    }
+  ]
+}

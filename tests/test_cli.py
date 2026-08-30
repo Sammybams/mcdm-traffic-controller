@@ -30,3 +30,18 @@ def test_parser_defaults_to_quarter_confidence() -> None:
 
     assert arguments.confidence == 0.25
 
+
+def test_parser_accepts_timestamped_capture_manifest() -> None:
+    arguments = build_parser().parse_args(
+        [
+            "--config",
+            "roads.json",
+            "--model",
+            "best.pt",
+            "--batch",
+            "cycle.json",
+        ]
+    )
+
+    assert str(arguments.batch) == "cycle.json"
+    assert arguments.max_capture_span == 30

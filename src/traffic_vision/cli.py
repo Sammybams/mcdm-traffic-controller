@@ -7,6 +7,7 @@ import json
 from collections.abc import Sequence
 from pathlib import Path
 
+from traffic_vision.capture_manifest import load_capture_batch
 from traffic_vision.config import load_road_configs
 from traffic_vision.detector import UltralyticsVehicleDetector
 from traffic_vision.service import measure_image_paths
@@ -33,13 +34,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--model", required=True, type=Path)
-    parser.add_argument(
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument(
         "--image",
         action="append",
-        required=True,
         metavar="ROAD_ID=PATH",
         help="repeat once for each of the four roads",
     )
+    inputs.add_argument(
+        "--batch",
+        type=Path,
+        help="version 1 capture manifest with four timestamped images",
+    )
+    parser.add_argument("--max-capture-span", type=float, default=30)
     parser.add_argument("--confidence", type=float, default=0.25)
     return parser
 
@@ -47,7 +54,13 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        image_paths = parse_image_assignments(args.image)
+        image_paths = (
+            load_capture_batch(
+                args.batch, maximum_span_seconds=args.max_capture_span
+            ).image_paths()
+            if args.batch
+            else parse_image_assignments(args.image)
+        )
         configs = load_road_configs(args.config)
         detector = UltralyticsVehicleDetector(args.model, args.confidence)
         result = measure_image_paths(
@@ -65,4 +78,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
