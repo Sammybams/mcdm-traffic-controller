@@ -40,7 +40,7 @@ def materialize_detection_dataset(
         copied += 1
 
     (destination_root / "dataset.yaml").write_text(
-        "path: .\n"
+        f"path: {destination_root.resolve()}\n"
         "train: images/train\n"
         "val: images/val\n"
         "test: images/test\n\n"

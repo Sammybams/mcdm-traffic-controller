@@ -25,4 +25,6 @@ def test_materializes_matching_detection_images_and_labels(tmp_path: Path) -> No
 
     assert (tmp_path / "detection/images/train/count-02__capture.jpg").is_file()
     assert (tmp_path / "detection/labels/train/count-02__capture.txt").is_file()
-    assert "toy_vehicle" in (tmp_path / "detection/dataset.yaml").read_text()
+    dataset_yaml = (tmp_path / "detection/dataset.yaml").read_text()
+    assert f"path: {(tmp_path / 'detection').resolve()}" in dataset_yaml
+    assert "toy_vehicle" in dataset_yaml
