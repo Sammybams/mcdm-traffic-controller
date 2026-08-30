@@ -2,15 +2,27 @@
 
 ## Honest completion boundary
 
-The software path, count-data audit, research classifier, annotation packaging,
+The software path, data audit, AI-assisted box generation, provisional detector,
 four-road capture contract, deterministic lane geometry, evaluation tools, and
-model adapters are implemented. The system is not yet safe to call complete or
-deployment-ready because the supplied data has no vehicle boxes, covers one
-apparent motor position, and has no road-plane calibration measurements.
+model adapters are implemented. The detector is usable for a supervised demo.
 
-Those are data and physical-system inputs, not missing model hyperparameters.
-No alternative neural-network architecture can recover reliable left/right
-locations or centimetre distances from total-count labels alone.
+The system is not yet deployment-ready because the provisional boxes are not
+independently reviewed ground truth, the images come from one short repeated
+session and one apparent motor position, and there are no physical road-plane
+calibration measurements. Those are now the limiting inputs—not another model
+architecture or more epochs on the same frames.
+
+Current status:
+
+| Area | Status |
+|---|---|
+| AI-assisted labels for supplied 133 images | Complete provisionally |
+| YOLO11n localization/count baseline | Complete provisionally |
+| Four-image left/right JSON pipeline | Working with estimated one-view geometry |
+| Independent box/lane ground truth | Required |
+| Distinct captures for roads 1–4 | Required |
+| Per-position physical calibration | Required |
+| Hardware fail-safe integration | Required |
 
 ## Smallest useful delivery increments
 
@@ -35,13 +47,14 @@ weights remain outside normal Git; commit their manifest/checksum and result.
 The existing 133 images can bootstrap detector development, but they are not an
 acceptance dataset because repeated frames are not independent examples.
 
-### B. Establish a detector baseline
+### B. Establish a detector baseline — provisional pass complete
 
-11. Materialize the YOLO train/validation/test directories from the reviewed
-    manifest.
-12. Commit the first detector experiment config; train YOLO11n at 640 pixels.
-13. Commit precision, recall, mAP, empty-road false positives, checksum, and the
-    accept/reject decision.
+11. **Done provisionally:** materialize leakage-limited YOLO
+    train/validation/test directories from the AI-assisted labels.
+12. **Done provisionally:** commit the first detector configuration and train
+    YOLO11n at 640 pixels.
+13. **Done provisionally:** commit precision, recall, mAP, count error,
+    empty-road false positives, checksum, and the research-only decision.
 14. Commit a 960-pixel experiment only if small-car recall is the limiting error.
 15. Commit a failure-category report for white cars, black cars, touching cars,
     occlusion, blur, and lane-line false positives.
