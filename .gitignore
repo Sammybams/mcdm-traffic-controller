@@ -13,6 +13,7 @@ data/images/
 data/labels/
 data/training/
 data/classification/
+data/annotation/
 runs/
 artifacts/
 *.onnx
