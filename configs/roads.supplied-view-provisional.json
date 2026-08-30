@@ -1,0 +1,49 @@
+{
+  "_comment": "Provisional normalized geometry estimated from the supplied single-view captures. All four entries are identical until each motor position is photographed and calibrated. Do not treat distances as centimetres.",
+  "roads": [
+    {
+      "road_id": "road_1",
+      "distance_unit": "normalized",
+      "visible_length": 0.55,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.04, 0.65], [0.82, 0.65]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.04, 0.10], [0.405, 0.10], [0.405, 0.65], [0.04, 0.65]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.415, 0.10], [0.82, 0.10], [0.82, 0.65], [0.415, 0.65]]}
+      }
+    },
+    {
+      "road_id": "road_2",
+      "distance_unit": "normalized",
+      "visible_length": 0.55,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.04, 0.65], [0.82, 0.65]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.04, 0.10], [0.405, 0.10], [0.405, 0.65], [0.04, 0.65]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.415, 0.10], [0.82, 0.10], [0.82, 0.65], [0.415, 0.65]]}
+      }
+    },
+    {
+      "road_id": "road_3",
+      "distance_unit": "normalized",
+      "visible_length": 0.55,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.04, 0.65], [0.82, 0.65]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.04, 0.10], [0.405, 0.10], [0.405, 0.65], [0.04, 0.65]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.415, 0.10], [0.82, 0.10], [0.82, 0.65], [0.415, 0.65]]}
+      }
+    },
+    {
+      "road_id": "road_4",
+      "distance_unit": "normalized",
+      "visible_length": 0.55,
+      "homography": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      "junction_line": [[0.04, 0.65], [0.82, 0.65]],
+      "lanes": {
+        "left": {"maximum_capacity": 6, "polygon": [[0.04, 0.10], [0.405, 0.10], [0.405, 0.65], [0.04, 0.65]]},
+        "right": {"maximum_capacity": 6, "polygon": [[0.415, 0.10], [0.82, 0.10], [0.82, 0.65], [0.415, 0.65]]}
+      }
+    }
+  ]
+}
