@@ -99,9 +99,9 @@ def choose_detector_threshold(
     return max(
         summaries,
         key=lambda summary: (
-            summary.exact_accuracy,
-            -summary.empty_false_positive_rate,
             -summary.mean_absolute_error,
+            -summary.empty_false_positive_rate,
+            summary.exact_accuracy,
             summary.threshold,
         ),
     )

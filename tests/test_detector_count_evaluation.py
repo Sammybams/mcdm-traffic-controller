@@ -51,3 +51,29 @@ def test_evaluates_and_selects_detector_count_threshold() -> None:
 def test_rejects_invalid_detector_threshold() -> None:
     with pytest.raises(ValueError, match="threshold"):
         evaluate_detector_counts(FakeVehicleDetector({}), [(Path("x"), 0)], 1.1)
+
+
+def test_threshold_selection_avoids_large_count_error() -> None:
+    template = evaluate_detector_counts(
+        FakeVehicleDetector({"a.jpg": _image([])}), [(Path("a.jpg"), 0)], 0.5
+    )
+    lower_mae = type(template)(
+        threshold=0.5,
+        image_count=10,
+        exact_accuracy=0.8,
+        within_one_accuracy=1,
+        mean_absolute_error=0.2,
+        empty_false_positive_rate=0,
+        predictions=(),
+    )
+    high_exact_but_catastrophic = type(lower_mae)(
+        threshold=0.6,
+        image_count=2,
+        exact_accuracy=0.5,
+        within_one_accuracy=0.5,
+        mean_absolute_error=2.5,
+        empty_false_positive_rate=0,
+        predictions=(),
+    )
+
+    assert choose_detector_threshold([high_exact_but_catastrophic, lower_mae]) == lower_mae
