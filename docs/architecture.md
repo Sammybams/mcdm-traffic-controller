@@ -83,12 +83,17 @@ lane polygons, junction line, and visible length in centimetres.
 
 ### Current experiment environment
 
-The two supplied-data experiments were run locally with Python 3.13.7,
-Ultralytics 8.4.135, PyTorch 2.13.0, and an Apple M4 Pro. Ultralytics reported
-CPU execution for these runs even though `mps` was requested. This is adequate
-for the tiny research set; final training should use a supported GPU when the
-annotated dataset grows. Exact weights and configuration checksums are in the
-two `configs/model-evaluation.*.json` records.
+The supplied-data classification and detection experiments were run locally
+with Python 3.13.7, Ultralytics 8.4.135, PyTorch 2.13.0, and an Apple M4 Pro.
+Ultralytics reported CPU execution even though `mps` was requested. AI-assisted
+pre-labelling used Grounding DINO Tiny and YOLO-World Small as proposal models;
+the deployed interim detector is the much smaller single-class YOLO11n model.
+Proposal models are development dependencies and are not loaded at runtime.
+
+This local setup is adequate for the tiny research set; final training should
+use a supported GPU when the reviewed dataset grows. Exact weights,
+configuration checksums, confidence threshold, data fingerprints, and results
+are in the `configs/model-evaluation.*.json` records.
 
 ### Offline path
 
@@ -96,7 +101,8 @@ two `configs/model-evaluation.*.json` records.
 Final camera rig
   -> capture sessions
   -> immutable original images
-  -> bounding-box annotation
+  -> AI-proposed bounding boxes
+  -> independent human review/correction
   -> annotation validation
   -> session-based train/validation/test split
   -> transfer-learning experiment
@@ -107,6 +113,16 @@ Final camera rig
 
 Training is offline and may use a GPU workstation or hosted GPU. Runtime should
 be local to the junction prototype; it does not require cloud connectivity.
+
+The model layers are deliberately separate:
+
+| Layer | Model or algorithm | Where it runs |
+|---|---|---|
+| Label suggestion | Grounding DINO Tiny + YOLO-World Small | Development/training only |
+| Vehicle inference | Fine-tuned one-class YOLO11n | Runtime host |
+| Lane assignment | Fixed polygons and homography | Runtime host, deterministic |
+| Density/proximity | Fixed arithmetic from counts and coordinates | Runtime host, deterministic |
+| Traffic choice | Existing weighted MCDM formula and history | Separate controller |
 
 ### Edge runtime path
 
