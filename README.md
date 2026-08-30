@@ -20,6 +20,8 @@ box to a lane and calculates the measurements.
 
 - [Runtime and model infrastructure](docs/architecture.md)
 - [Training, data, evaluation, and deployment flow](docs/training-data-flow.md)
+- [Supplied dataset and physical setup audit](docs/supplied-dataset-audit.md)
+- [Remaining tiny-commit implementation plan](docs/remaining-implementation-plan.md)
 
 The example road geometry is intentionally uncalibrated. Copy
 `configs/roads.example.json` and replace its lane polygons, junction lines,
@@ -50,6 +52,17 @@ traffic-vision \
   --image road_4=captures/road-4.jpg
 ```
 
+For a hardware-produced, timestamped observation cycle, use the capture
+manifest instead of individual arguments:
+
+```bash
+traffic-vision \
+  --config configs/roads.calibrated.json \
+  --model artifacts/toy-vehicle-v1.pt \
+  --batch captures/cycle.json \
+  --max-capture-span 15
+```
+
 Every road result contains left/right count, density, nearest distance, and
 proximity, plus aggregate road measurements and per-car coordinates.
 
@@ -64,3 +77,8 @@ performed independently at all four motor positions.
 
 Do not commit datasets or trained weights to normal Git history. See the
 documentation added with the training pipeline for the expected asset flow.
+
+The supplied count-only data also produced a research model at
+`artifacts/research/count-full-frame.pt`. It can demonstrate four-image total
+classification with `scripts/classify_total_counts.py`, but it is explicitly
+not the production lane-count model and must not drive the controller.

@@ -81,6 +81,15 @@ lane polygons, junction line, and visible length in centimetres.
 
 ## Model infrastructure
 
+### Current experiment environment
+
+The two supplied-data experiments were run locally with Python 3.13.7,
+Ultralytics 8.4.135, PyTorch 2.13.0, and an Apple M4 Pro. Ultralytics reported
+CPU execution for these runs even though `mps` was requested. This is adequate
+for the tiny research set; final training should use a supported GPU when the
+annotated dataset grows. Exact weights and configuration checksums are in the
+two `configs/model-evaluation.*.json` records.
+
 ### Offline path
 
 ```text
@@ -109,6 +118,20 @@ The current adapter loads an Ultralytics-compatible `.pt` model. The interface
 allows a later ONNX, OpenVINO, TensorRT, or another detector adapter without
 changing the geometry or output contract.
 
+The rotating camera introduces temporal skew: four road photographs are not a
+single simultaneous observation. The versioned capture-manifest contract stores
+the road ID, motor position, timestamp, and image path for each capture and
+rejects a cycle that exceeds the configured maximum span. Servo movement,
+settling, exposure, and inference should be optimized so the complete cycle is
+short relative to traffic movement.
+
+For a tabletop deployment, run inference on a laptop, Raspberry Pi-class edge
+computer, or other local host beside the controller. The motor/camera firmware
+owns rotation and capture; the Python service owns detection and geometry; the
+MCDM process owns scoring; and the safety/relay controller owns legal red-amber-
+green transitions. A model result must never directly energize conflicting
+green lights.
+
 ### Artifact ownership
 
 | Asset | Versioned in normal Git? | Recommended location |
@@ -135,4 +158,3 @@ confidence threshold.
   expected from the capture layer and should be added before hardware control.
 - The downstream controller must use fixed-cycle or safe fallback behaviour if
   the sensing result is absent, stale, or invalid.
-

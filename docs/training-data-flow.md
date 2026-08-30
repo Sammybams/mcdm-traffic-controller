@@ -2,8 +2,21 @@
 
 ## Current data and model status
 
-No training images, annotations, or trained model weights are present in this
-repository yet. No accuracy claim can therefore be made at this stage.
+The supplied local dataset contains 133 images labelled only by total vehicle
+count from 0 through 12. The source images, generated splits, run outputs, and
+weights are intentionally ignored by Git, while their checksums, configuration,
+and measured results are committed.
+
+Two total-count classifiers were trained and evaluated. The better full-frame
+experiment achieved 30 percent exact accuracy and 1.66-car MAE on the held-out
+split. It is a research artifact, not an accepted deployment model. It cannot
+produce left/right counts, vehicle coordinates, or proximity. See
+`docs/supplied-dataset-audit.md` for the evidence and experiment records.
+
+The 133 source images have been materialized locally as an annotation batch,
+but no human-reviewed bounding boxes have been supplied yet. Therefore the
+required object detector has not been trained and no production accuracy claim
+can be made.
 
 The implemented code provides:
 
@@ -13,8 +26,56 @@ The implemented code provides:
 - an Ultralytics detector adapter; and
 - end-to-end evaluation for lane counts and nearest-junction distance.
 
-The first real model must be trained only after the final camera, camera height,
-lens, road board, lane markings, motor positions, and lighting are installed.
+The first accepted detector must be finalized only after the camera, height,
+lens, road board, lane markings, motor positions, and lighting are fixed.
+
+## Process actually executed on the supplied data
+
+```text
+data/training/{0..12}/*.jpg
+  -> structural audit and dataset fingerprint
+  -> temporal grouping of repeated captures
+  -> 70 train / 13 validation / 50 held-out images
+  -> YOLO11n classification transfer learning
+  -> count-specific held-out evaluation
+  -> rejected/research-only model records
+  -> flat 133-image annotation batch for the detector workflow
+```
+
+The classifier path is an experiment made possible by the image-level labels.
+It is not a substitute for the production detector path below.
+
+```text
+data/annotation/images
+  -> human draws one box per visible toy car
+  -> exported labels checked against each known total
+  -> split by arrangement/session, not adjacent frame
+  -> YOLO toy-vehicle detector transfer learning
+  -> per-box precision/recall and mAP
+  -> four calibrated road views
+  -> end-to-end left/right count and distance evaluation
+  -> release gate and versioned deployment artifact
+```
+
+Prepare the existing images for CVAT, Label Studio, Roboflow, or another box
+annotation tool:
+
+```bash
+python3 scripts/prepare_annotation_batch.py data/training data/annotation
+```
+
+After exporting one-class YOLO labels to `data/annotation/labels`, check both
+format and expected box totals:
+
+```bash
+python3 scripts/verify_annotation_batch.py \
+  data/annotation/annotation-manifest.json \
+  data/annotation/labels
+```
+
+The verifier exits non-zero for a missing label or when the number of boxes
+does not equal the source image's known total. This catches omissions but still
+does not replace visual review of box placement.
 
 ## What the dataset must contain
 
@@ -315,4 +376,3 @@ accepted model; promote a new version only when it passes all gates.
 
 The runtime does not need internet access. Keeping inference local reduces
 latency and makes the tabletop demonstration independent of network quality.
-
