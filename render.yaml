@@ -5,11 +5,7 @@ services:
     plan: 1c-2g
     buildCommand: >-
       pip install --upgrade pip &&
-      pip install -e '.[api,vision]' &&
-      python scripts/download_model.py
-      "$TRAFFIC_VISION_MODEL_URL"
-      artifacts/research/toy-vehicle-prelabel.pt
-      --sha256 "$TRAFFIC_VISION_MODEL_SHA256"
+      pip install -r requirements.txt
     startCommand: >-
       uvicorn traffic_vision.api:app
       --host 0.0.0.0
@@ -19,10 +15,6 @@ services:
     envVars:
       - key: TRAFFIC_VISION_API_KEY
         sync: false
-      - key: TRAFFIC_VISION_MODEL_URL
-        sync: false
-      - key: TRAFFIC_VISION_MODEL_SHA256
-        value: 682b580b0bdb8afd9c42b3202a238bd31942ffa7c33f37ebb81ce2a268828544
       - key: TRAFFIC_VISION_MODEL
         value: artifacts/research/toy-vehicle-prelabel.pt
       - key: TRAFFIC_VISION_ROADS_CONFIG
