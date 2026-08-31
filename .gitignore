@@ -18,10 +18,15 @@ data/prelabels/
 data/prelabels-v2/
 data/detection-prelabel/
 runs/
-artifacts/
+artifacts/*
+!artifacts/research/
+artifacts/research/*
 *.onnx
 *.pt
 *.engine
+
+# The small, checksum-recorded runtime detector is required by App Service.
+!artifacts/research/toy-vehicle-prelabel.pt
 
 .DS_Store
 .env
