@@ -34,9 +34,17 @@ class UltralyticsVehicleDetector:
             raise ValueError("minimum confidence must be between zero and one")
         try:
             from ultralytics import YOLO
+        except ModuleNotFoundError as error:
+            if error.name == "ultralytics":
+                raise RuntimeError(
+                    "Ultralytics is not installed; install the project with the vision extra"
+                ) from error
+            raise RuntimeError(
+                f"an Ultralytics dependency failed to import: {error}"
+            ) from error
         except ImportError as error:
             raise RuntimeError(
-                "Ultralytics is not installed; install the project with the vision extra"
+                f"an Ultralytics native dependency failed to import: {error}"
             ) from error
 
         self._model = YOLO(str(model_path))
@@ -68,4 +76,3 @@ class UltralyticsVehicleDetector:
                 )
             )
         return ImageDetections(width=width, height=height, detections=tuple(detections))
-

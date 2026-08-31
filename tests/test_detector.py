@@ -1,4 +1,5 @@
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -24,3 +25,11 @@ def test_ultralytics_detector_validates_confidence_before_import() -> None:
     with pytest.raises(ValueError, match="between zero and one"):
         UltralyticsVehicleDetector("model.pt", minimum_confidence=2)
 
+
+def test_ultralytics_detector_preserves_native_import_error() -> None:
+    with patch(
+        "builtins.__import__",
+        side_effect=ImportError("libxcb.so.1 is missing"),
+    ):
+        with pytest.raises(RuntimeError, match="native dependency.*libxcb"):
+            UltralyticsVehicleDetector("model.pt")
