@@ -19,6 +19,7 @@ box to a lane and calculates the measurements.
 ## Documentation
 
 - [Runtime and model infrastructure](docs/architecture.md)
+- [FastAPI testing and Render deployment](docs/api-deployment.md)
 - [Training, data, evaluation, and deployment flow](docs/training-data-flow.md)
 - [Supplied dataset and physical setup audit](docs/supplied-dataset-audit.md)
 - [Remaining tiny-commit implementation plan](docs/remaining-implementation-plan.md)
@@ -105,6 +106,18 @@ traffic-vision \
 The output contains left/right counts, normalized density and proximity, and
 each detected car's coordinates. The lane polygons are estimates for the one
 supplied camera view; calibrate all four motor positions before deployment.
+
+Start the FastAPI service with the same model:
+
+```bash
+python3 -m pip install -e '.[api,vision]'
+uvicorn traffic_vision.api:app --host 127.0.0.1 --port 8000
+```
+
+Use `http://127.0.0.1:8000/docs` for interactive upload testing. The API
+supports both one-image-per-road calls and a four-image junction request. See
+the FastAPI and Render guide linked above for `curl` examples, model artifact
+hosting, API-key protection, and Blueprint deployment.
 
 The older whole-image classifier at
 `artifacts/research/count-full-frame.pt` achieved only 30 percent exact total
