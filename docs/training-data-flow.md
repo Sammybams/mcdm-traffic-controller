@@ -15,11 +15,12 @@ or proximity, so it remains a rejected research path.
 
 An AI-assisted labelling pass has now proposed one box per car using Grounding
 DINO and YOLO-World. The known total in each source folder constrained the
-number of accepted boxes, geometry removed proposals outside the road, repeated
-frames were used for consistency checks, overlays were reviewed, and ten
-difficult images received explicit corrections. This produced 786 provisional
-boxes across all 133 images, including empty label files for the ten empty-road
-images.
+number of accepted boxes, fixed normalized scene/shape bounds removed implausible
+proposals, repeated frames were checked for consistency, overlays were reviewed,
+and ten difficult images received explicit corrections. This produced 786
+provisional boxes across all 133 images, including empty label files for the ten
+empty-road images. The exact implementation and executed reports are explained
+in `docs/ai-assisted-labelling.md`.
 
 A YOLO11n detector trained from those provisional boxes achieved 76 percent
 exact total-count accuracy, 98 percent within-one accuracy, and 0.26-car MAE on
@@ -107,12 +108,24 @@ overrides, and build a contact sheet:
 python3 scripts/generate_ai_prelabels.py \
   data/training data/prelabels-v2
 python3 scripts/repair_ai_prelabels.py \
-  data/prelabels-v2
+  data/training data/prelabels-v2
 python3 scripts/apply_prelabel_overrides.py \
-  data/prelabels-v2 configs/prelabel-overrides.json
+  data/training data/prelabels-v2 configs/prelabel-overrides.json
 python3 scripts/make_prelabel_contact_sheet.py \
-  data/prelabels-v2
+  data/training \
+  data/prelabels-v2 \
+  data/prelabels-v2/representative-contact-sheet.jpg
 ```
+
+Those are the exact required positional arguments. The generator refuses to
+overwrite an existing destination, so a new labelling attempt should use a new
+versioned directory such as `data/prelabels-v3`.
+
+The executed report contained 2,051 geometry-filtered candidates and 786 final
+boxes; 691 originally selected boxes recorded agreement from both proposal
+models. The temporal-repair stage ran but repaired zero images. Two reviewed
+override groups replaced labels in ten repeated frames. The contact sheet used
+one representative from each of 23 temporal arrangement groups.
 
 Generated labels, overlays, downloaded proposal models, and intermediate
 training weights are ignored by Git. The promoted runtime detector is committed
@@ -126,6 +139,12 @@ python3 scripts/prepare_detection_dataset.py \
   data/training data/prelabels-v2/labels data/detection-prelabel
 python3 scripts/train_model.py configs/detection-prelabel-baseline.json
 ```
+
+The split planner used a 30-second temporal gap and produced 70 training, 13
+validation, and 50 test images. Because the source contains too few independent
+arrangements, every count class is flagged in the split manifest as having some
+group leakage. “Held out” therefore means held out by the best available
+same-session split; it does not mean independent real-world ground truth.
 
 Select the confidence threshold only on validation data, then evaluate that
 fixed threshold on the held-out split:
@@ -412,8 +431,10 @@ created_at
 approved_by
 ```
 
-Model weights should be published as a release artifact or placed in a model
-registry, not committed directly to Git.
+Accepted model weights should normally be published as a release artifact or
+placed in a model registry. The current 5.2 MB provisional runtime detector is a
+deliberate Git exception so a fresh Azure deployment is self-contained; its
+checksum and research-only status are committed with it.
 
 ## Deployment
 

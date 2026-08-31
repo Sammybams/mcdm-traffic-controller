@@ -125,15 +125,20 @@ truth automatically.
 ## AI-assisted provisional detector result
 
 The count labels were subsequently used as constraints for an ensemble
-pre-labelling workflow. Grounding DINO and YOLO-World proposed boxes; road
-geometry, non-maximum suppression, cross-model agreement, and the known total
-ranked them. Review overlays exposed difficult dark-car arrangements, and
-explicit normalized corrections were committed for ten affected images.
+pre-labelling workflow. Grounding DINO and YOLO-World proposed boxes; normalized
+scene/shape bounds, non-maximum suppression, cross-model agreement, and the
+known total ranked them. These bounds are a supplied-view heuristic, not the
+calibrated lane geometry. Review overlays exposed difficult dark-car
+arrangements, and explicit normalized corrections were committed for ten
+affected images.
 
 The completed provisional set contains 786 boxes across 133 images. Every label
 file has the known number of boxes, including ten empty files. This is useful
 for bootstrapping, but matching the expected row count does not prove that every
-box is correctly placed.
+box is correctly placed. The temporal repair stage changed zero images; the ten
+reviewed corrections cover two repeated arrangements. See
+`docs/ai-assisted-labelling.md` for the exact prompts, thresholds, ranking
+formula, overlay colours, commands, and data lineage.
 
 A YOLO11n detector was fine-tuned for 50 epochs at 640-pixel input. Confidence
 0.20 was selected on the 13-image validation split by minimum count MAE. On the
