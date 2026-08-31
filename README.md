@@ -112,7 +112,7 @@ Start the FastAPI service with the same model:
 
 ```bash
 python3 -m pip install -r requirements.txt
-uvicorn traffic_vision.api:app --host 127.0.0.1 --port 8000
+python3 -m uvicorn traffic_vision.api:app --app-dir src --host 127.0.0.1 --port 8000
 ```
 
 Use `http://127.0.0.1:8000/docs` for interactive upload testing. The API

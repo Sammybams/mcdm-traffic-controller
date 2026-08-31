@@ -94,7 +94,7 @@ jobs:
           app-name: 'traffic'
           slot-name: 'Production'
           package: .
-          startup-command: 'python -m uvicorn traffic_vision.api:app --host 0.0.0.0 --port 8000 --workers 1'
+          startup-command: 'python -m uvicorn traffic_vision.api:app --app-dir src --host 0.0.0.0 --port 8000 --workers 1'
 
       - name: Verify deployed health endpoint
         run: |

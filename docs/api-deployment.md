@@ -26,7 +26,8 @@ The trained artifact must exist at
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m pip install -e '.[dev]'
-.venv/bin/uvicorn traffic_vision.api:app \
+.venv/bin/python -m uvicorn traffic_vision.api:app \
+  --app-dir src \
   --host 127.0.0.1 \
   --port 8000
 ```
