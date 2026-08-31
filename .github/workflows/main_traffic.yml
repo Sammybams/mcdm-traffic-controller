@@ -118,10 +118,11 @@ jobs:
           plan_id="$(az webapp show --name traffic --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" --query serverFarmId --output tsv)"
           az appservice plan show \
             --ids "$plan_id" \
-            --query '{status:status,kind:kind,reserved:reserved,sku:sku}'
+            --query '{status:status,kind:kind,reserved:reserved,sku:sku}' \
+            || echo "The deployment identity cannot read App Service plan metadata."
           az webapp log download \
             --name traffic \
             --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" \
             --log-file webapp-logs.zip
           unzip -q webapp-logs.zip -d webapp-logs
-          find webapp-logs -type f -maxdepth 4 -print -exec tail -n 300 {} \;
+          find webapp-logs -maxdepth 4 -type f -print -exec tail -n 300 {} \;
