@@ -3,9 +3,10 @@
 ## Current data and model status
 
 The supplied local dataset contains 133 images labelled only by total vehicle
-count from 0 through 12. The source images, generated splits, run outputs, and
-weights are intentionally ignored by Git, while their checksums, configuration,
-and measured results are committed.
+count from 0 through 12. Source images, generated splits, run outputs, and
+non-release weights are intentionally ignored by Git. The promoted 5.2 MB
+runtime detector, its checksum, configuration, and measured results are
+committed so deployments are self-contained.
 
 Two total-count classifiers were trained and evaluated. The better full-frame
 experiment achieved 30 percent exact accuracy and 1.66-car MAE on the held-out
@@ -113,9 +114,10 @@ python3 scripts/make_prelabel_contact_sheet.py \
   data/prelabels-v2
 ```
 
-The generated labels, overlays, downloaded proposal models, and trained weights
-are ignored by Git. The source code, override decisions, training configuration,
-checksums, and measured results are committed.
+Generated labels, overlays, downloaded proposal models, and intermediate
+training weights are ignored by Git. The promoted runtime detector is committed
+as a deliberate deployment artifact alongside source code, override decisions,
+training configuration, checksums, and measured results.
 
 Materialize the leakage-limited detector split and train:
 

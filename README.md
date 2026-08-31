@@ -19,7 +19,7 @@ box to a lane and calculates the measurements.
 ## Documentation
 
 - [Runtime and model infrastructure](docs/architecture.md)
-- [FastAPI testing and Render deployment](docs/api-deployment.md)
+- [FastAPI, Azure App Service, and Render deployment](docs/api-deployment.md)
 - [Training, data, evaluation, and deployment flow](docs/training-data-flow.md)
 - [Supplied dataset and physical setup audit](docs/supplied-dataset-audit.md)
 - [Remaining tiny-commit implementation plan](docs/remaining-implementation-plan.md)
@@ -76,18 +76,19 @@ python3 scripts/compute_homography.py configs/calibration-points.example.json
 Copy the resulting matrix into the matching road entry. Calibration must be
 performed independently at all four motor positions.
 
-Do not commit datasets or trained weights to normal Git history. See the
-documentation added with the training pipeline for the expected asset flow.
+Do not commit datasets or arbitrary training weights to normal Git history.
+The small detector promoted for runtime use is the deliberate exception so a
+fresh Azure or Render deployment contains everything needed to start.
 
 ## Provisional model built from the supplied data
 
 AI-assisted pre-labelling made it possible to train an interim object detector
-from the 133 count-labelled images. Its local weight file is
-`artifacts/research/toy-vehicle-prelabel.pt`; weights and datasets remain
-ignored by Git. On the 50-image held-out split it produced the exact total count
-in 76 percent of images, was within one car in 98 percent, and had a 0.26-car
-mean absolute error. These figures come from one short, highly repeated camera
-session and are not evidence of four-road production accuracy.
+from the 133 count-labelled images. Its runtime weight file is committed at
+`artifacts/research/toy-vehicle-prelabel.pt`; datasets and non-release weights
+remain ignored. On the 50-image held-out split it produced the exact total
+count in 76 percent of images, was within one car in 98 percent, and had a
+0.26-car mean absolute error. These figures come from one short, highly
+repeated camera session and are not evidence of four-road production accuracy.
 
 Run the detector on four separate captures with the provisional supplied-view
 geometry:
@@ -110,14 +111,14 @@ supplied camera view; calibrate all four motor positions before deployment.
 Start the FastAPI service with the same model:
 
 ```bash
-python3 -m pip install -e '.[api,vision]'
+python3 -m pip install -r requirements.txt
 uvicorn traffic_vision.api:app --host 127.0.0.1 --port 8000
 ```
 
 Use `http://127.0.0.1:8000/docs` for interactive upload testing. The API
 supports both one-image-per-road calls and a four-image junction request. See
-the FastAPI and Render guide linked above for `curl` examples, model artifact
-hosting, API-key protection, and Blueprint deployment.
+the FastAPI deployment guide linked above for `curl` examples, API-key
+protection, Azure App Service, and Render deployment.
 
 The older whole-image classifier at
 `artifacts/research/count-full-frame.pt` achieved only 30 percent exact total
