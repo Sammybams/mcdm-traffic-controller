@@ -20,6 +20,7 @@ box to a lane and calculates the measurements.
 
 - [Runtime and model infrastructure](docs/architecture.md)
 - [FastAPI, Azure App Service, and Render deployment](docs/api-deployment.md)
+- [How the AI-assisted vehicle labelling worked](docs/ai-assisted-labelling.md)
 - [Training, data, evaluation, and deployment flow](docs/training-data-flow.md)
 - [Supplied dataset and physical setup audit](docs/supplied-dataset-audit.md)
 - [Remaining tiny-commit implementation plan](docs/remaining-implementation-plan.md)
@@ -89,6 +90,31 @@ remain ignored. On the 50-image held-out split it produced the exact total
 count in 76 percent of images, was within one car in 98 percent, and had a
 0.26-car mean absolute error. These figures come from one short, highly
 repeated camera session and are not evidence of four-road production accuracy.
+
+### How the provisional labels were created
+
+The source folders supplied only a whole-image total count; they did not contain
+boxes or left/right lane labels. The labelling workflow:
+
+1. asked Grounding DINO Tiny and YOLO-World Small for low-threshold toy-car box
+   proposals;
+2. removed candidates that did not match the supplied camera view's normalized
+   size, shape, and centre bounds;
+3. boosted overlapping proposals from both models, suppressed duplicate boxes,
+   and selected no more than the known folder count;
+4. wrote one-class YOLO labels and colour-coded review overlays;
+5. checked whether incomplete repeated frames could safely inherit boxes from a
+   nearby frame—the executed run required zero such repairs;
+6. applied reviewed normalized corrections to 10 difficult dark-car frames; and
+7. built a 70/13/50 image train/validation/test dataset and fine-tuned YOLO11n.
+
+The final provisional set contains 786 boxes. Matching each folder's known
+total verifies box quantity only, not box placement. All count classes also had
+some unavoidable repeated-frame leakage because the 133 images contain too few
+independent arrangements. See the dedicated
+[AI-assisted labelling guide](docs/ai-assisted-labelling.md) for exact prompts,
+thresholds, geometry bounds, commands, reports, checksums, and remaining human
+review requirements.
 
 Run the detector on four separate captures with the provisional supplied-view
 geometry:
