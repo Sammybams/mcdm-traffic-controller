@@ -79,6 +79,12 @@ jobs:
             exit 1
           fi
           echo "AZURE_WEBAPP_RESOURCE_GROUP=$resource_group" >> "$GITHUB_ENV"
+          az webapp log config \
+            --name traffic \
+            --resource-group "$resource_group" \
+            --application-logging filesystem \
+            --level information \
+            --docker-container-logging filesystem
           az webapp start --name traffic --resource-group "$resource_group"
 
       - name: 'Deploy to Azure Web App'
@@ -96,3 +102,26 @@ jobs:
           curl --fail --show-error --silent \
             --retry 30 --retry-all-errors --retry-delay 10 \
             --max-time 15 "https://$hostname/health"
+
+      - name: Collect Azure startup diagnostics
+        if: failure()
+        continue-on-error: true
+        run: |
+          az webapp show \
+            --name traffic \
+            --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" \
+            --query '{state:state,availabilityState:availabilityState,kind:kind,reserved:reserved,enabled:enabled,defaultHostName:defaultHostName,serverFarmId:serverFarmId}'
+          az webapp config show \
+            --name traffic \
+            --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" \
+            --query '{linuxFxVersion:linuxFxVersion,appCommandLine:appCommandLine,alwaysOn:alwaysOn,http20Enabled:http20Enabled}'
+          plan_id="$(az webapp show --name traffic --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" --query serverFarmId --output tsv)"
+          az appservice plan show \
+            --ids "$plan_id" \
+            --query '{status:status,kind:kind,reserved:reserved,sku:sku}'
+          az webapp log download \
+            --name traffic \
+            --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" \
+            --log-file webapp-logs.zip
+          unzip -q webapp-logs.zip -d webapp-logs
+          find webapp-logs -type f -maxdepth 4 -print -exec tail -n 300 {} \;
