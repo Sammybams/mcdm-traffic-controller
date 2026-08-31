@@ -1,8 +1,12 @@
 # Azure Deployment Plan
 
-> **Status:** Planning
+> **Status:** Cancelled — direct Azure Portal deployment selected
 
 Generated: 2026-08-31
+
+This infrastructure-as-code plan was stopped at the user's request before any
+Azure resources were created. The active deployment path is the Azure-generated
+GitHub Actions workflow documented in `docs/api-deployment.md`.
 
 ---
 
