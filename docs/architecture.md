@@ -90,6 +90,12 @@ pre-labelling used Grounding DINO Tiny and YOLO-World Small as proposal models;
 the deployed interim detector is the much smaller single-class YOLO11n model.
 Proposal models are development dependencies and are not loaded at runtime.
 
+Production requirements use the official
+`ultralytics-opencv-headless==8.4.135` distribution. It exposes the same
+`ultralytics` Python API while replacing desktop OpenCV with the headless wheel.
+This is required by the Azure Linux image, which does not include the X11
+`libxcb.so.1` library needed by desktop OpenCV.
+
 This local setup is adequate for the tiny research set; final training should
 use a supported GPU when the reviewed dataset grows. Exact weights,
 configuration checksums, confidence threshold, data fingerprints, and results
@@ -141,12 +147,13 @@ rejects a cycle that exceeds the configured maximum span. Servo movement,
 settling, exposure, and inference should be optimized so the complete cycle is
 short relative to traffic movement.
 
-For a tabletop deployment, run inference on a laptop, Raspberry Pi-class edge
-computer, or other local host beside the controller. The motor/camera firmware
-owns rotation and capture; the Python service owns detection and geometry; the
-MCDM process owns scoring; and the safety/relay controller owns legal red-amber-
-green transitions. A model result must never directly energize conflicting
-green lights.
+The current demonstration API runs on Azure App Service; the final tabletop can
+instead run on a laptop, Raspberry Pi-class edge computer, or another local host
+beside the controller. Hosting location does not change the ownership boundary:
+the motor/camera firmware owns rotation and capture, the Python service owns
+detection and geometry, the MCDM process owns scoring, and the safety/relay
+controller owns legal red-amber-green transitions. A model result must never
+directly energize conflicting green lights.
 
 ### Artifact ownership
 
@@ -157,8 +164,13 @@ green lights.
 | Data rules and experiment notes | Yes | `docs/` |
 | Original and labelled images | No | DVC, Git LFS, or versioned object storage |
 | Training runs and plots | No | Experiment/artifact storage |
-| Model weights | No | Model registry or release artifact storage |
+| Model weights | Usually no | Model registry or release artifact storage |
 | Deployment model checksum/version | Yes | Release manifest |
+
+The current 5.2 MB provisional detector is a deliberate exception: its `.pt`
+file is committed with a fixed checksum so Azure and Render deployments are
+self-contained. Larger, intermediate, rejected, and proposal-model weights
+remain outside normal Git history.
 
 Every deployed result should be traceable to a source commit, dataset version,
 training configuration, model checksum, road calibration version, and detector

@@ -19,6 +19,7 @@ Current status:
 | AI-assisted labels for supplied 133 images | Complete provisionally |
 | YOLO11n localization/count baseline | Complete provisionally |
 | Four-image left/right JSON pipeline | Working with estimated one-view geometry |
+| FastAPI and Azure App Service | Deployed with the provisional model and passing `/health` |
 | Independent box/lane ground truth | Required |
 | Distinct captures for roads 1–4 | Required |
 | Per-position physical calibration | Required |

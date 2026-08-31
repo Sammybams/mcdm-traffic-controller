@@ -6,6 +6,11 @@ The API loads one detector when the process starts and serializes inference
 through a lock. This avoids loading the model for every request and avoids
 concurrent access to the same Ultralytics model instance.
 
+The runtime installs `ultralytics-opencv-headless==8.4.135`. Do not replace it
+with desktop `ultralytics`/`opencv-python` on Azure: desktop OpenCV imports
+`libxcb.so.1`, which is absent from the managed Linux image and causes the
+FastAPI lifespan startup to fail.
+
 | Method and path | Purpose |
 |---|---|
 | `GET /` | Service discovery |
@@ -84,8 +89,6 @@ but exposes public inference on a deployed service.
 The required 5.2 MB runtime model is committed at
 `artifacts/research/toy-vehicle-prelabel.pt`. Generated training weights,
 proposal models, datasets, and the rejected count classifier remain excluded.
-The committed artifact's SHA-256 is:
-
 The expected SHA-256 is:
 
 ```text
@@ -104,9 +107,24 @@ The Azure-generated workflow at `.github/workflows/main_traffic.yml` now:
 2. installs `requirements.txt`;
 3. runs the complete test suite;
 4. verifies the committed model checksum;
-5. authenticates to the existing Azure Web App using GitHub OIDC;
-6. deploys the complete repository artifact; and
-7. configures one Uvicorn worker with the correct FastAPI import path.
+5. imports the Linux vision dependencies and loads the real detector artifact;
+6. authenticates to the existing Azure Web App using GitHub OIDC;
+7. enables container logging and starts the existing Web App;
+8. deploys the complete repository artifact;
+9. configures one Uvicorn worker with `--app-dir src`; and
+10. retries the discovered public `/health` URL and captures Azure startup logs
+    when it never becomes healthy.
+
+The configured startup command is:
+
+```text
+python -m uvicorn traffic_vision.api:app --app-dir src --host 0.0.0.0 --port 8000 --workers 1
+```
+
+`python -m` ensures Uvicorn comes from Oryx's virtual environment. The
+`--app-dir src` option makes the repository's source layout explicit.
+`--reload` is intentionally absent because it is a development feature, not a
+production process manager.
 
 Every push to `main` triggers the workflow. In the Azure Portal, open the
 `traffic` Web App, then Settings > Environment variables, and add:
@@ -115,17 +133,21 @@ Every push to `main` triggers the workflow. In the Azure Portal, open the
 TRAFFIC_VISION_API_KEY=<your generated secret>
 ```
 
-The other runtime variables have safe defaults for the committed model and
-provisional geometry. After the workflow succeeds, test:
+The local `.env` file is ignored by Git and is not copied into Azure. Add the
+key in the Web App settings even if it already exists locally. The other runtime
+variables have defaults for the committed model and provisional geometry.
+
+The public hostname discovered during the verified deployment was
+`traffic-ajg3afeuffd9c5ds.eastus-01.azurewebsites.net`. Test:
 
 ```text
-https://traffic.azurewebsites.net/health
-https://traffic.azurewebsites.net/docs
+https://traffic-ajg3afeuffd9c5ds.eastus-01.azurewebsites.net/health
+https://traffic-ajg3afeuffd9c5ds.eastus-01.azurewebsites.net/docs
 ```
 
-If the Web App has a different public hostname, use the hostname shown on its
-Azure Overview page. Send `X-API-Key` on inference requests when the setting is
-enabled.
+If Azure later changes the public hostname, use `defaultHostName` from the Web
+App Overview/configuration; the workflow discovers it rather than hard-coding
+it. Send `X-API-Key` on inference requests when the setting is enabled.
 
 ## Deploy with the Render Blueprint
 
