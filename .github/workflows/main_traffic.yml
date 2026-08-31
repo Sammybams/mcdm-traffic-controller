@@ -71,6 +71,16 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_03DD34D987D4439CABB16D2977635310 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_34C3EFB0DD184239849447F012A899A1 }}
 
+      - name: Resolve and start Azure Web App
+        run: |
+          resource_group="$(az webapp list --query "[?name=='traffic'].resourceGroup | [0]" --output tsv)"
+          if [ -z "$resource_group" ]; then
+            echo "Could not find Azure Web App 'traffic' in the authenticated subscription."
+            exit 1
+          fi
+          echo "AZURE_WEBAPP_RESOURCE_GROUP=$resource_group" >> "$GITHUB_ENV"
+          az webapp start --name traffic --resource-group "$resource_group"
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -80,3 +90,9 @@ jobs:
           package: .
           startup-command: 'python -m uvicorn traffic_vision.api:app --host 0.0.0.0 --port 8000 --workers 1'
 
+      - name: Verify deployed health endpoint
+        run: |
+          hostname="$(az webapp show --name traffic --resource-group "$AZURE_WEBAPP_RESOURCE_GROUP" --query defaultHostName --output tsv)"
+          curl --fail --show-error --silent \
+            --retry 30 --retry-all-errors --retry-delay 10 \
+            --max-time 15 "https://$hostname/health"
