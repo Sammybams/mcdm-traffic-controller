@@ -22,13 +22,17 @@ class ConstantDetector:
         )
 
 
-def _runtime(maximum_upload_bytes: int = 1024) -> ApiRuntime:
+def _runtime(
+    maximum_upload_bytes: int = 1024,
+    api_key: str | None = None,
+) -> ApiRuntime:
     return ApiRuntime(
         detector=ConstantDetector(),
         configs=load_road_configs("configs/roads.supplied-view-provisional.json"),
         confidence=0.2,
         maximum_upload_bytes=maximum_upload_bytes,
         inference_lock=Lock(),
+        api_key=api_key,
     )
 
 
@@ -100,3 +104,18 @@ def test_upload_size_is_limited() -> None:
         )
 
     assert response.status_code == 413
+
+
+def test_inference_can_require_api_key() -> None:
+    with TestClient(create_app(_runtime(api_key="test-secret"))) as client:
+        unauthorized = client.post(
+            "/v1/roads/road_1/measure", files={"image": _image()}
+        )
+        authorized = client.post(
+            "/v1/roads/road_1/measure",
+            files={"image": _image()},
+            headers={"X-API-Key": "test-secret"},
+        )
+
+    assert unauthorized.status_code == 401
+    assert authorized.status_code == 200

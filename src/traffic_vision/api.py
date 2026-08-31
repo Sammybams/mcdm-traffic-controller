@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 import tempfile
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -11,7 +12,7 @@ from pathlib import Path
 from threading import Lock
 from typing import Annotated
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
 from traffic_vision.config import RoadConfig, load_road_configs
@@ -29,6 +30,7 @@ class ApiSettings:
     roads_config_path: Path
     confidence: float = 0.20
     maximum_upload_bytes: int = 10 * 1024 * 1024
+    api_key: str | None = None
 
     def __post_init__(self) -> None:
         if not 0 <= self.confidence <= 1:
@@ -39,6 +41,7 @@ class ApiSettings:
     @classmethod
     def from_environment(cls) -> ApiSettings:
         maximum_megabytes = float(os.getenv("TRAFFIC_VISION_MAX_UPLOAD_MB", "10"))
+        raw_api_key = os.getenv("TRAFFIC_VISION_API_KEY", "").strip()
         return cls(
             model_path=Path(
                 os.getenv(
@@ -54,6 +57,7 @@ class ApiSettings:
             ),
             confidence=float(os.getenv("TRAFFIC_VISION_CONFIDENCE", "0.20")),
             maximum_upload_bytes=int(maximum_megabytes * 1024 * 1024),
+            api_key=raw_api_key or None,
         )
 
 
@@ -64,6 +68,7 @@ class ApiRuntime:
     confidence: float
     maximum_upload_bytes: int
     inference_lock: Lock
+    api_key: str | None = None
 
 
 def load_runtime(settings: ApiSettings) -> ApiRuntime:
@@ -77,6 +82,7 @@ def load_runtime(settings: ApiSettings) -> ApiRuntime:
         confidence=settings.confidence,
         maximum_upload_bytes=settings.maximum_upload_bytes,
         inference_lock=Lock(),
+        api_key=settings.api_key,
     )
 
 
@@ -165,7 +171,16 @@ def create_app(
             "confidence": current.confidence,
         }
 
-    @application.post("/v1/measure")
+    async def require_api_key(
+        x_api_key: Annotated[str | None, Header()] = None,
+    ) -> None:
+        current: ApiRuntime = application.state.runtime
+        if current.api_key is not None and (
+            x_api_key is None or not secrets.compare_digest(x_api_key, current.api_key)
+        ):
+            raise HTTPException(status_code=401, detail="invalid or missing API key")
+
+    @application.post("/v1/measure", dependencies=[Depends(require_api_key)])
     async def measure_junction(
         road_1: Annotated[UploadFile, File(description="Road 1 image")],
         road_2: Annotated[UploadFile, File(description="Road 2 image")],
@@ -196,7 +211,9 @@ def create_app(
         except (OSError, ValueError) as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
 
-    @application.post("/v1/roads/{road_id}/measure")
+    @application.post(
+        "/v1/roads/{road_id}/measure", dependencies=[Depends(require_api_key)]
+    )
     async def measure_single_road(
         road_id: str,
         image: Annotated[UploadFile, File(description="One road image")],

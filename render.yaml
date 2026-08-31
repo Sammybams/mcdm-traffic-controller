@@ -17,6 +17,8 @@ services:
       --workers 1
     healthCheckPath: /health
     envVars:
+      - key: TRAFFIC_VISION_API_KEY
+        sync: false
       - key: TRAFFIC_VISION_MODEL_URL
         sync: false
       - key: TRAFFIC_VISION_MODEL_SHA256
